@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mission Quiz · Big Screen</title>
+<link rel="preload" href="assets/tektur-500.ttf" as="font" type="font/ttf" crossorigin>
+<link rel="preload" href="assets/silkscreen.ttf" as="font" type="font/ttf" crossorigin>
+<link rel="stylesheet" href="style.css">
+<style>
+html{font-size:clamp(12px,1.05vw,26px)}
+body{overflow:hidden;height:100dvh}
+.app{height:100dvh;display:grid;grid-template-rows:auto 1fr auto;padding:1.4rem 2.4rem 1.2rem;gap:1.2rem}
+.top{display:flex;align-items:center;justify-content:space-between;gap:1rem}
+.top .tag{font-size:.85rem}
+.top .ttl{font-family:Silkscreen,monospace;letter-spacing:.14em;text-transform:uppercase;color:var(--orange);font-size:1.05rem;flex:1;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top .st{font-family:Silkscreen,monospace;letter-spacing:.12em;font-size:.8rem;text-transform:uppercase;display:flex;align-items:center;gap:.6em;color:var(--muted)}
+.stage{min-height:0;position:relative}
+.scene{position:absolute;inset:0;display:none}
+.scene.on{display:flex;animation:in .35s ease-out}
+@keyframes in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.ctl{display:flex;justify-content:space-between;align-items:center;gap:1rem}
+.ctl .hint{font-family:Silkscreen,monospace;font-size:.7rem;letter-spacing:.14em;color:var(--muted);text-transform:uppercase}
+.ctl .btns{display:flex;gap:.6rem}
+.ctl .btn{font-size:.8rem;padding:.6em 1em}
+.hd .code{font-family:Silkscreen,monospace;letter-spacing:.14em;color:var(--orange);font-size:1.1rem;margin-bottom:.4rem}
+.hd h1{font-family:Tektur,sans-serif;font-weight:500;text-transform:uppercase;letter-spacing:.03em;line-height:.95}
+/* LOBBY */
+#lobby{gap:2.4rem;align-items:stretch}
+.join{width:34%;display:flex;flex-direction:column;gap:1.2rem}
+.join h1{font-size:4.6rem}
+.join h1 span{display:block;font-size:.62em;color:var(--blue);margin-top:.2em}
+.qrbox{padding:1.1rem;display:flex;flex-direction:column;align-items:center;gap:.8rem}
+.qrbox .qr{width:min(100%,19rem);aspect-ratio:1;background:#fff}
+.qrbox .qr svg{display:block;width:100%;height:100%}
+.qrbox .url{font-family:Tektur,sans-serif;font-weight:500;font-size:1.5rem;letter-spacing:.04em;word-break:break-all;text-align:center}
+.qrbox .lab{font-family:Silkscreen,monospace;font-size:.7rem;letter-spacing:.16em;color:var(--muted);text-transform:uppercase}
+.crew{flex:1;padding:1.4rem;display:flex;flex-direction:column;min-width:0}
+.crew .chead{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:1rem}
+.crew .sec{font-family:Silkscreen,monospace;letter-spacing:.14em;color:var(--blue);text-transform:uppercase;font-size:1rem;display:flex;align-items:center;gap:.6rem}
+.crew .sec::before{content:"";width:3px;height:.9em;background:var(--orange)}
+.crew .count{font-family:Tektur,sans-serif;font-weight:500;font-size:3.2rem;line-height:1;color:var(--orange)}
+.crew .count small{font-size:.35em;color:var(--muted);letter-spacing:.14em;margin-left:.3em}
+.names{display:flex;flex-wrap:wrap;gap:.6rem;align-content:flex-start;overflow:hidden;flex:1}
+.names button{font-family:Tektur,sans-serif;font-weight:500;font-size:1.35rem;letter-spacing:.04em;padding:.35em .8em;border:1px solid rgba(47,123,255,.55);background:rgba(47,123,255,.12);animation:pop .3s ease-out}
+.names button.off{opacity:.45}
+.names button.rm{border-color:var(--bad);color:#FF9A9D;background:rgba(255,90,95,.12)}
+@keyframes pop{from{transform:scale(.6);opacity:0}to{transform:none;opacity:1}}
+.empty{margin:auto;font-family:Silkscreen,monospace;letter-spacing:.16em;color:var(--muted);text-transform:uppercase;font-size:1rem;text-align:center}
+/* QUESTION */
+#question,#reveal{flex-direction:column;gap:1.2rem}
+.qtop{display:flex;align-items:center;gap:2rem}
+.qtext{flex:1;padding:1.6rem 2rem;font-family:Tektur,sans-serif;font-weight:500;font-size:2.9rem;line-height:1.15;letter-spacing:.01em;min-height:8rem;display:flex;align-items:center}
+.qtext.l{font-size:2.3rem}.qtext.xl{font-size:1.9rem}
+.ring{width:9.5rem;height:9.5rem;position:relative;flex:none}
+.ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.ring circle{fill:none;stroke-width:7}
+.ring .bgc{stroke:rgba(47,123,255,.2)}
+.ring .fg{stroke:var(--orange);stroke-linecap:butt;transition:stroke-dashoffset 1s linear}
+.ring b{position:absolute;inset:0;display:grid;place-items:center;font-family:Tektur,sans-serif;font-weight:500;font-size:3.6rem}
+.ring.low b{color:#FF9A9D}.ring.low .fg{stroke:var(--bad)}
+.ans{width:9.5rem;text-align:center;flex:none}
+.ans b{display:block;font-family:Tektur,sans-serif;font-weight:500;font-size:3.6rem;line-height:1}
+.ans span{font-family:Silkscreen,monospace;font-size:.7rem;letter-spacing:.14em;color:var(--muted);text-transform:uppercase}
+.tiles{flex:1;display:grid;grid-template-columns:1fr 1fr;grid-auto-rows:1fr;gap:1rem;min-height:0}
+.tile{display:flex;align-items:center;gap:1.2rem;padding:1rem 1.6rem;background:var(--c);color:var(--ink);font-family:Tektur,sans-serif;font-weight:500;font-size:2.1rem;line-height:1.15;position:relative;transition:opacity .3s,filter .3s}
+.tile .shape{width:2.6rem;height:2.6rem}
+.tile span:not(.bar):not(.tick){flex:1;padding-right:5rem}
+.tile .bar{position:absolute;right:1.4rem;top:50%;transform:translateY(-50%);font-family:Tektur,sans-serif;font-weight:500;font-size:3rem;display:none;align-items:center;gap:.8rem}
+#reveal .tile.no .bar{color:var(--text)}
+#reveal .tile .bar{display:flex}
+#reveal .tile.no{background:rgba(255,255,255,.05);color:var(--muted);box-shadow:inset .4rem 0 0 var(--c)}
+#reveal .tile.no .shape{color:var(--c)}
+#reveal .tile.yes{box-shadow:0 0 0 .35rem #fff inset}
+.tile .tick{display:none;width:2.4rem;height:2.4rem;border-radius:50%;background:rgba(0,0,0,.25);place-items:center;font-size:1.6rem;color:#fff}
+#reveal .tile.yes .tick{display:grid}
+.qmeta{display:flex;justify-content:space-between;font-family:Silkscreen,monospace;letter-spacing:.14em;text-transform:uppercase;font-size:1rem}
+.qmeta .n{color:var(--orange)}.qmeta .tm{color:var(--muted)}
+/* BOARD */
+#board,#end{flex-direction:column;align-items:center;gap:1.4rem}
+#board .hd,#end .hd{text-align:center}
+#board h1,#end h1{font-size:4rem}
+.lb{width:min(100%,62rem);display:flex;flex-direction:column;gap:.7rem}
+.row{display:flex;align-items:center;gap:1.4rem;padding:.9rem 1.6rem;background:rgba(8,20,40,.85);border:1px solid var(--line);border-left:4px solid var(--blue);animation:in .4s ease-out both}
+.row:first-child{border-left-color:var(--orange)}
+.row .r{font-family:Silkscreen,monospace;font-size:1.4rem;color:var(--blue);width:3rem}
+.row:first-child .r{color:var(--orange)}
+.row .nm{flex:1;font-family:Tektur,sans-serif;font-weight:500;font-size:2rem;letter-spacing:.04em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .sc{font-family:Tektur,sans-serif;font-weight:500;font-size:2rem;color:var(--orange)}
+.row .gain{font-family:Silkscreen,monospace;font-size:1.1rem;color:var(--ok);width:8rem;text-align:right}
+/* END */
+.podium{display:flex;align-items:flex-end;gap:1.6rem;flex:1;min-height:0;padding-top:1rem}
+.pod{width:16rem;display:flex;flex-direction:column;align-items:center;gap:.8rem}
+.pod .who{font-family:Tektur,sans-serif;font-weight:500;font-size:2rem;text-align:center;letter-spacing:.04em;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;opacity:0;animation:in .5s ease-out forwards}
+.pod .pts{font-family:Silkscreen,monospace;color:var(--muted);font-size:.9rem;opacity:0;animation:in .5s ease-out forwards}
+.pod .blk{width:100%;display:flex;justify-content:center;padding-top:1rem;font-family:Silkscreen,monospace;font-size:3.4rem;transform-origin:bottom;animation:grow .7s ease-out both}
+.pod.p1 .blk{height:20rem;background:linear-gradient(180deg,rgba(255,138,31,.55),rgba(255,138,31,.12));border:1px solid var(--orange);color:#fff}
+.pod.p2 .blk{height:14rem;background:linear-gradient(180deg,rgba(47,123,255,.5),rgba(47,123,255,.1));border:1px solid var(--blue)}
+.pod.p3 .blk{height:10rem;background:linear-gradient(180deg,rgba(47,123,255,.32),rgba(47,123,255,.06));border:1px solid rgba(47,123,255,.6)}
+.pod.p2 .who,.pod.p2 .pts{animation-delay:.9s}.pod.p3 .who,.pod.p3 .pts{animation-delay:.5s}.pod.p1 .who,.pod.p1 .pts{animation-delay:1.5s}
+.pod.p2 .blk{animation-delay:.4s}.pod.p1 .blk{animation-delay:.9s}
+@keyframes grow{from{transform:scaleY(0)}to{transform:none}}
+.alert{position:fixed;left:50%;bottom:4.5rem;transform:translateX(-50%);background:rgba(255,90,95,.15);border:1px solid var(--bad);color:#FFC2C4;padding:.6rem 1rem;font-size:.9rem;z-index:20}
+</style>
+</head><body>
+<div class="app">
+  <header class="top">
+    <div class="tag"><b></b><i></i>YDSP · Mission Quiz</div>
+    <div class="ttl" id="ttl">Mission Quiz</div>
+    <div class="st"><span class="dot" id="dot"></span><span id="stt">Connecting</span></div>
+  </header>
+
+  <main class="stage">
+    <!-- LOBBY -->
+    <section class="scene" id="lobby">
+      <div class="join">
+        <div class="hd"><div class="code">// Briefing</div><h1>Join the<span>mission</span></h1></div>
+        <div class="frame qrbox">
+          <div class="qr" id="qr"></div>
+          <div class="lab">Scan, or go to</div>
+          <div class="url" id="url"></div>
+        </div>
+      </div>
+      <div class="frame crew">
+        <div class="chead"><div class="sec">Crew on board</div><div class="count" id="pcount">0<small>JOINED</small></div></div>
+        <div class="names" id="names"></div>
+      </div>
+    </section>
+
+    <!-- QUESTION -->
+    <section class="scene" id="question">
+      <div class="qmeta"><span class="n" id="qn"></span><span class="tm" id="qtm"></span></div>
+      <div class="qtop">
+        <div class="ring" id="ring"><svg viewBox="0 0 100 100"><circle class="bgc" cx="50" cy="50" r="45"/><circle class="fg" id="ringfg" cx="50" cy="50" r="45" stroke-dasharray="282.74" stroke-dashoffset="0"/></svg><b id="secs">20</b></div>
+        <div class="frame qtext" id="qtext"></div>
+        <div class="ans"><b id="acount">0</b><span>Answers</span></div>
+      </div>
+      <div class="tiles" id="tiles"></div>
+    </section>
+
+    <!-- REVEAL -->
+    <section class="scene" id="reveal">
+      <div class="qmeta"><span class="n" id="rn"></span><span class="tm" id="rtm"></span></div>
+      <div class="qtop"><div class="frame qtext" id="rtext"></div></div>
+      <div class="tiles" id="rtiles"></div>
+    </section>
+
+    <!-- LEADERBOARD -->
+    <section class="scene" id="board">
+      <div class="hd"><div class="code" id="bcode"></div><h1>Leaderboard</h1></div>
+      <div class="lb" id="lb"></div>
+    </section>
+
+    <!-- END -->
+    <section class="scene" id="end">
+      <div class="hd"><div class="code">// Mission complete</div><h1>Top crew</h1></div>
+      <div class="podium" id="podium"></div>
+    </section>
+  </main>
+
+  <footer class="ctl">
+    <div class="hint" id="hint">Space / → = next</div>
+    <div class="btns">
+      <button class="btn" id="bLobby" title="Back to lobby, keep players, clear scores">⟲ Lobby</button>
+      <button class="btn warn" id="bReset" title="Remove all players and start fresh">New game</button>
+      <button class="btn" id="bFull">⛶ Full screen</button>
+      <button class="btn go blink" id="bNext">Start ▸</button>
+    </div>
+  </footer>
+</div>
+<div class="alert" id="warn" hidden></div>
+
+<script src="config.js"></script>
+<script src="rt.js"></script>
+<script src="qr.js"></script>
+<script src="common.js"></script>
+<script src="show.js"></script>
+</body></html>

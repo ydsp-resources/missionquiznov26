@@ -1,0 +1,57 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+
+    "admins": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid && auth.token.firebase.sign_in_provider === 'password' && !root.child('admins').exists()"
+      }
+    },
+
+    "quiz": {
+      ".read": "auth != null && root.child('admins').child(auth.uid).exists()",
+      ".write": "auth != null && root.child('admins').child(auth.uid).exists()"
+    },
+
+    "live": {
+      ".read": "auth != null",
+      ".write": "auth != null && root.child('admins').child(auth.uid).exists()"
+    },
+
+    "players": {
+      ".read": "auth != null",
+      ".write": "auth != null && root.child('admins').child(auth.uid).exists()",
+      "$uid": {
+        ".write": "auth != null && auth.uid === $uid",
+        ".validate": "newData.hasChildren(['name']) && newData.child('name').isString() && newData.child('name').val().length > 0 && newData.child('name').val().length <= 16"
+      }
+    },
+
+    "presence": {
+      ".read": "auth != null && root.child('admins').child(auth.uid).exists()",
+      ".write": "auth != null && root.child('admins').child(auth.uid).exists()",
+      "$uid": {
+        ".write": "auth != null && auth.uid === $uid",
+        ".validate": "newData.isBoolean()"
+      }
+    },
+
+    "scores": {
+      ".read": "auth != null",
+      ".write": "auth != null && root.child('admins').child(auth.uid).exists()"
+    },
+
+    "answers": {
+      ".read": "auth != null && root.child('admins').child(auth.uid).exists()",
+      ".write": "auth != null && root.child('admins').child(auth.uid).exists()",
+      "$key": {
+        "$uid": {
+          ".write": "auth != null && auth.uid === $uid && !data.exists() && root.child('players').child(auth.uid).exists() && root.child('live/phase').val() === 'question' && root.child('live/q/key').val() === $key && now <= root.child('live/endsAt').val() + 3000",
+          ".validate": "newData.hasChildren(['c', 'at']) && newData.child('c').isNumber() && newData.child('c').val() >= 0 && newData.child('c').val() <= 3 && newData.child('at').val() === now"
+        }
+      }
+    }
+  }
+}

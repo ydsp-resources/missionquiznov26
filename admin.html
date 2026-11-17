@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mission Quiz · Admin</title>
+<link rel="stylesheet" href="style.css">
+<style>
+html{font-size:15px}
+.shell{max-width:1320px;margin:0 auto;padding:18px clamp(12px,2.4vw,28px) 60px}
+.bar{position:sticky;top:0;z-index:30;display:flex;align-items:center;justify-content:space-between;gap:10px;background:rgba(5,11,26,.95);border:1px solid var(--line);padding:.6rem .8rem;margin-bottom:18px;font-family:Silkscreen,monospace;letter-spacing:.12em;text-transform:uppercase;font-size:12px}
+.bar .bt{color:var(--orange);font-size:14px;flex:1;text-align:center}
+.bar .st{display:flex;align-items:center;gap:.6em;color:var(--muted)}
+.hd{margin-bottom:18px}
+.hd .code{font-family:Silkscreen,monospace;font-size:14px;letter-spacing:.14em;color:var(--orange);margin-bottom:.4rem}
+.hd h1{font-family:Tektur,sans-serif;font-weight:500;font-size:clamp(26px,3vw,40px);letter-spacing:.04em;text-transform:uppercase;line-height:1.05}
+.hd .rule{margin-top:.8rem}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:20px;align-items:start}
+@media (max-width:980px){.grid{grid-template-columns:1fr}.side{position:static!important}}
+.sec{font-family:Silkscreen,monospace;font-size:13px;letter-spacing:.14em;margin:0 0 .7rem;display:flex;align-items:center;gap:.6rem;color:var(--blue);text-transform:uppercase}.sec::before{content:"";width:3px;height:.9em;background:var(--orange)}
+.qs{display:flex;flex-direction:column;gap:14px}
+.qc{padding:16px 18px 14px}
+.qc.live{border-color:var(--orange)}
+.qh{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.qh .no{font-family:Silkscreen,monospace;font-size:20px;color:var(--blue);letter-spacing:.06em}
+.qh .badge{font-family:Silkscreen,monospace;font-size:10px;letter-spacing:.12em;padding:3px 7px;border:1px solid;text-transform:uppercase}
+.badge.ok{color:var(--ok);border-color:rgba(46,204,143,.6)}
+.badge.inc{color:#FFC27A;border-color:rgba(255,138,31,.6)}
+.badge.on{color:#050B1A;background:var(--orange);border-color:var(--orange)}
+.qh .sp{flex:1}
+.qh select{background:rgba(5,11,26,.9);border:1px solid var(--line);padding:5px 6px;font-size:13px}
+.ib{width:32px;height:32px;border:1px solid var(--line);display:grid;place-items:center;font-size:14px;color:var(--muted)}
+.ib:hover{border-color:var(--orange);color:var(--orange)}
+.ib.del:hover{border-color:var(--bad);color:#FF9A9D}
+textarea.qtext{width:100%;resize:vertical;min-height:56px;padding:10px 12px;background:rgba(5,11,26,.85);border:1px solid var(--line);outline:none;font-family:Outfit,sans-serif;font-weight:700;font-size:17px;line-height:1.35}
+textarea.qtext:focus,.opt input:focus{border-color:var(--orange)}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+@media (max-width:640px){.opts{grid-template-columns:1fr}}
+.opt{display:flex;align-items:stretch;border:1px solid var(--line);background:rgba(5,11,26,.85)}
+.opt .sw{width:40px;display:grid;place-items:center;background:var(--c);color:var(--ink);flex:none}
+.opt .sw .shape{width:18px;height:18px}
+.opt input[type=text]{flex:1;min-width:0;padding:9px 10px;background:none;border:1px solid transparent;outline:none;font-size:15px}
+.opt label{display:flex;align-items:center;gap:5px;padding:0 9px;font-family:Silkscreen,monospace;font-size:14px;letter-spacing:.1em;color:var(--muted);cursor:pointer;border-left:1px solid var(--line);text-transform:uppercase;white-space:nowrap}
+.opt label input{accent-color:var(--ok);width:16px;height:16px}
+.opt.right{border-color:rgba(46,204,143,.75)}
+.opt.right label{color:var(--ok)}
+.add{width:100%;padding:14px;border:1px dashed rgba(47,123,255,.6);font-family:Silkscreen,monospace;letter-spacing:.14em;text-transform:uppercase;color:var(--blue);font-size:13px}
+.add:hover{border-color:var(--orange);color:var(--orange)}
+.side{position:sticky;top:70px;display:flex;flex-direction:column;gap:14px}
+.box{padding:16px}
+.kv{display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-bottom:1px dashed rgba(47,123,255,.25);font-size:14px}
+.kv:last-of-type{border-bottom:0}
+.kv span{color:var(--muted)}
+.kv b{font-family:Tektur,sans-serif;font-weight:500;letter-spacing:.04em;text-transform:uppercase}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.row .btn{flex:1;font-size:12px;padding:.7em .8em}
+.fld{display:flex;flex-direction:column;gap:5px;margin-bottom:12px}
+.fld span{font-family:Silkscreen,monospace;font-size:10px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase}
+.fld input{padding:9px 10px;background:rgba(5,11,26,.85);border:1px solid var(--line);outline:none;font-size:15px}
+.fld input:focus{border-color:var(--orange)}
+.fld small{color:var(--muted);font-size:12px;line-height:1.35}
+.save{font-family:Silkscreen,monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase}
+.save.ok{color:var(--ok)}.save.busy{color:var(--orange)}.save.err{color:#FF9A9D}
+a.btn{text-decoration:none;display:inline-block;text-align:center}
+.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:rgba(8,20,40,.95);border:1px solid var(--orange);padding:10px 16px;font-size:14px;z-index:50}
+.plist{max-height:220px;overflow:auto;margin-top:8px;font-size:14px}
+.plist div{display:flex;justify-content:space-between;padding:4px 2px;border-bottom:1px solid rgba(47,123,255,.12);cursor:pointer}.plist div:hover{background:rgba(47,123,255,.1)}.plist div.rm{color:#FF9A9D;background:rgba(255,90,95,.12)}
+.plist i{font-style:normal;color:var(--muted)}
+</style>
+</head><body>
+<div class="shell">
+  <div class="bar"><span>YDSP · Admin</span><span class="bt">Mission control</span><span class="st"><span class="dot" id="dot"></span><span id="stt">Connecting</span><button class="btn" id="out" style="font-size:10px;padding:.4em .7em;margin-left:8px">Sign out</button></span></div>
+  <div class="hd"><div class="code">// Quiz editor</div><h1 id="h1">Mission Quiz</h1><div class="rule"><i></i><b></b></div></div>
+
+  <div class="grid">
+    <main>
+      <div class="sec">Questions <span class="save" id="save"></span></div>
+      <div class="qs" id="qs"></div>
+      <div style="margin-top:14px"><button class="add" id="add">+ Add question</button></div>
+    </main>
+
+    <aside class="side">
+      <div class="frame o box">
+        <div class="sec">Live game</div>
+        <div class="kv"><span>Status</span><b id="gPhase">—</b></div>
+        <div class="kv"><span>Question</span><b id="gQ">—</b></div>
+        <div class="kv"><span>Players</span><b id="gP">0</b></div>
+        <div class="kv"><span>Ready questions</span><b id="gR">0</b></div>
+        <div class="row">
+          <a class="btn go" href="show.html" target="ydsp-show">Open big screen ↗</a>
+        </div>
+        <div class="row">
+          <button class="btn" id="cLobby" title="Keep players, clear scores">⟲ Back to lobby</button>
+          <button class="btn warn" id="cReset" title="Remove all players">New game</button>
+        </div>
+        <div class="fld" style="margin:10px 0 0"><small>Start and move through questions on the big screen. Click a player twice to remove them.</small></div>
+        <div class="plist" id="plist"></div>
+      </div>
+
+      <div class="frame box">
+        <div class="sec">Settings</div>
+        <label class="fld"><span>Quiz title (shown on screens)</span><input id="title" maxlength="80"></label>
+        <label class="fld"><span>Join link for the QR code</span><input id="joinUrl" maxlength="300" placeholder="Leave blank (recommended)">
+          <small>Leave blank to use this website's address. Only fill this in if the QR code shows the wrong link.</small></label>
+        <div class="row">
+          <button class="btn" id="exp">Export</button>
+          <label class="btn" style="cursor:pointer">Import<input type="file" id="imp" accept=".json,application/json" hidden></label>
+        </div>
+      </div>
+
+      <div class="frame box" style="font-size:14px;color:var(--muted);line-height:1.5">
+        <div class="sec">How it works</div>
+        Every change saves itself and appears on the big screen straight away, even mid-game. Incomplete questions (no text, fewer than 2 options, or an empty correct answer) are skipped when you start.
+      </div>
+    </aside>
+  </div>
+</div>
+<div class="toast" id="toast" hidden></div>
+
+<script src="config.js"></script>
+<script src="rt.js"></script>
+<script src="common.js"></script>
+<script src="admin.js"></script>
+</body></html>
