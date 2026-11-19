@@ -100,6 +100,7 @@ a.btn{text-decoration:none;display:inline-block;text-align:center}
         <label class="fld"><span>Quiz title (shown on screens)</span><input id="title" maxlength="80"></label>
         <label class="fld"><span>Join link for the QR code</span><input id="joinUrl" maxlength="300" placeholder="Leave blank (recommended)">
           <small>Leave blank to use this website's address. Only fill this in if the QR code shows the wrong link.</small></label>
+        <label class="fld" style="flex-direction:row;align-items:flex-start;gap:10px;cursor:pointer"><input type="checkbox" id="autoEnd" style="width:18px;height:18px;accent-color:var(--orange);margin-top:2px"><span style="font-family:Outfit,sans-serif;font-size:14px;letter-spacing:0;text-transform:none;color:var(--text)">End a question early when every student has answered<br><small style="color:var(--muted)">Untick to always run the full timer.</small></span></label>
         <div class="row">
           <button class="btn" id="exp">Export</button>
           <label class="btn" style="cursor:pointer">Import<input type="file" id="imp" accept=".json,application/json" hidden></label>

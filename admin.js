@@ -9,7 +9,7 @@ function setSave(cls, txt) { const s = $('#save'); s.className = 'save ' + cls; 
 
 // ---- editor ----
 function renderAll() {
-  $('#title').value = quiz.title; $('#joinUrl').value = quiz.joinUrl || '';
+  $('#title').value = quiz.title; $('#joinUrl').value = quiz.joinUrl || ''; $('#autoEnd').checked = quiz.autoEnd !== false;
   $('#h1').textContent = quiz.title;
   $('#qs').innerHTML = quiz.questions.map(cardHTML).join('');
   quiz.questions.forEach((q, i) => refreshCard(i));
@@ -57,6 +57,7 @@ $('#qs').addEventListener('click', e => {
 });
 $('#add').onclick = () => { quiz.questions.push({ id: Q.uid(), text: '', options: ['', '', '', ''], correct: 0, time: 20 }); renderAll(); queueSave(0); $('#qs').lastElementChild.querySelector('textarea').focus(); };
 $('#title').oninput = e => { quiz.title = e.target.value; $('#h1').textContent = quiz.title || 'Mission Quiz'; queueSave(400); };
+$('#autoEnd').onchange = e => { quiz.autoEnd = e.target.checked; queueSave(0); };
 $('#joinUrl').oninput = e => { quiz.joinUrl = e.target.value.trim(); queueSave(600); };
 
 function queueSave(ms) { if (quiz) $('#gR').textContent = quiz.questions.filter(Q.playable).length + ' of ' + quiz.questions.length; dirty = true; setSave('busy', '· Saving…'); clearTimeout(saveT); saveT = setTimeout(flush, ms); }

@@ -68,10 +68,13 @@ const kick = uid => RT.update('', { ['players/' + uid]: null, ['scores/' + uid]:
 function armTimers() {
   clearTimeout(revealT);
   if (!L || L.phase !== 'question') return;
-  revealT = setTimeout(reveal, Math.max(0, L.endsAt - RT.now()) + 300);
-  const on = online();
-  if (on.length && on.every(u => answers[u])) revealT = setTimeout(reveal, 400);
+  const on = online(), key = L.q && L.q.key;
+  allIn = !!(quiz && quiz.autoEnd !== false && on.length && on.every(u => answers[u]));
+  // Exactly one pending timer, and it may only end the question it was set for.
+  const wait = allIn ? 1500 /* pause so the room sees "Everyone has answered!" */ : Math.max(0, L.endsAt - RT.now()) + 300;
+  revealT = setTimeout(() => { if (L && L.phase === 'question' && L.q && L.q.key === key) reveal(); }, wait);
 }
+let allIn = false;
 function watchAnswers() {
   const key = L && L.phase === 'question' && L.q ? L.q.key : (L && L.phase === 'reveal' && L.q ? L.q.key : '');
   if (key === ansKey) return;
@@ -133,6 +136,7 @@ function render() {
       if (fresh) startRing();
     }
     $('#acount').textContent = Object.keys(answers).length + '/' + online().length;
+    $('#qtm').textContent = allIn ? 'Everyone has answered!' : L.q.time + 's';
     return;
   }
   if (stopCd) { stopCd(); stopCd = null; }
@@ -227,7 +231,7 @@ document.addEventListener('keydown', e => {
   RT.onConnected(ok => { $('#dot').className = 'dot ' + (ok ? 'live' : 'off'); $('#stt').textContent = ok ? 'Live' : 'Reconnecting…'; });
   RT.on('quiz', v => {
     if (!v) { RT.set('quiz', Q.DEFAULT_QUIZ()).catch(() => {}); return; }
-    quiz = Q.cleanQuiz(v); syncLiveQuestion(); render();
+    quiz = Q.cleanQuiz(v); syncLiveQuestion(); armTimers(); render();
   });
   RT.on('live', v => {
     if (!v) { if (quiz) resetGame(); else setTimeout(() => !L && quiz && resetGame(), 1500); return; }

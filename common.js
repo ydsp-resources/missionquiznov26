@@ -20,7 +20,7 @@ const Q = {
   DEFAULT_QUIZ() {
     const blank = () => ({ id: Q.uid(), text: '', options: ['', '', '', ''], correct: 0, time: 20 });
     return {
-      title: 'YDSP Mission Quiz', joinUrl: '',
+      title: 'YDSP Mission Quiz', joinUrl: '', autoEnd: true,
       questions: [
         { id: Q.uid(), text: "What is DSTA's full name?", options: ['Defence Science and Technology Agency', 'Defence Systems and Technology Authority', 'Defence Science and Tactics Academy', 'Digital Security and Technology Agency'], correct: 0, time: 20 },
         { id: Q.uid(), text: 'Who is the CE (Chief Executive) of DSTA?', options: ['', '', '', ''], correct: 0, time: 20 },
@@ -34,6 +34,7 @@ const Q = {
     return {
       title: s(q.title, 80) || 'YDSP Mission Quiz',
       joinUrl: s(q.joinUrl, 300),
+      autoEnd: q.autoEnd !== false,
       questions: Q.arr(q.questions).filter(Boolean).slice(0, 50).map(x => {
         const opts = Q.arr(x.options).slice(0, 4).map(o => s(o, 90)); while (opts.length < 4) opts.push('');
         return { id: /^[\w-]{4,20}$/.test(x.id || '') ? x.id : Q.uid(), text: s(x.text, 240), options: opts,
